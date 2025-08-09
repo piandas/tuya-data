@@ -22,23 +22,19 @@ jobs:
     
     - name: Instalar dependencias
       run: |
-        cd ex3_rachas
         pip install pandas openpyxl pytest
     
     - name: Preparar datos
       run: |
-        cd ex3_rachas
-        python scripts/xlsx_to_csv.py
-        python scripts/loads_csv_to_table.py
+        python ex3_rachas/scripts/xlsx_to_csv.py
+        python ex3_rachas/scripts/loads_csv_to_table.py
     
     - name: Ejecutar pruebas
       run: |
-        cd ex3_rachas
-        python -m pytest tests/test_rachas.py -v
+        python -m pytest ex3_rachas/tests/test_rachas.py -v
     
     - name: Verificar solución principal
       run: |
-        cd ex3_rachas
-        python scripts/run_solution.py --fecha_base 2023-04-30 --n 3
-        [ -f resultados.csv ] || exit 1
-        echo "Resultados generados: $(wc -l < resultados.csv) líneas"
+        python ex3_rachas/scripts/run_solution.py --fecha_base 2023-04-30 --n 3 --output ex3_rachas/resultados.csv
+        [ -f ex3_rachas/resultados.csv ] || exit 1
+        echo "Resultados generados: $(wc -l < ex3_rachas/resultados.csv) líneas"
