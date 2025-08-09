@@ -111,10 +111,9 @@ Ejemplo de salida (JSON):
 
 ---
 
-## 🔍 Calidad y contratos
+## 🔍 Calidad CI/CD y notas adicionales
 - Data Contract (`ex1_ex2_telefonos_kpis/data_contract.yaml`): columnas y reglas básicas; umbrales mínimos (E.164 ≥ 95%, duplicados ≤ 1%).
 - Gates: si fallan mínimos, no se promueve de silver_ a gold_ y se notifica.
 - Auditoría/lineage: registro por corrida (`run_id`) de reglas, KPIs y transformaciones.
-
-## Notas
+- Tests: existen pruebas para ex3 (rachas) y ex4 (html2base64) que se ejecutan con Pytest y Github Actions directamente al hacer algun commit.
 - ex4 usa solo librería estándar; ex3 usa pandas/openpyxl para preparación y pytest para pruebas.
