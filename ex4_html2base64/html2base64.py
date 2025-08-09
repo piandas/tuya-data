@@ -10,7 +10,8 @@ import base64
 import mimetypes
 import json
 
-from bs4 import BeautifulSoup
+from html.parser import HTMLParser
+from html import escape
 
 
 SUPPORTED_IMG_SCHEMES = ("", "file://",)
@@ -56,46 +57,104 @@ def inline_images_in_html(html_path: Path, output_suffix: str = ".inlined.html")
     html_path = Path(html_path)
     html_text = html_path.read_text(encoding="utf-8", errors="ignore")
 
-    soup = BeautifulSoup(html_text, "html.parser")
+    class ImgInliner(HTMLParser):
+        def __init__(self, base_html: Path):
+            super().__init__(convert_charrefs=True)
+            self.base_html = base_html
+            self.out: List[str] = []
+            self.ok: List[str] = []
+            self.bad: List[str] = []
 
-    ok: List[str] = []
-    bad: List[str] = []
+        def _resolve_and_inline(self, src: str) -> str | None:
+            if not _is_local_image(src):
+                return None
+            src_clean = src.replace("file://", "")
+            if "?" in src_clean:
+                src_clean = src_clean.split("?", 1)[0]
+            if "#" in src_clean:
+                src_clean = src_clean.split("#", 1)[0]
+            candidate = Path(src_clean)
+            if candidate.is_absolute():
+                img_path = candidate
+            else:
+                img_path = (self.base_html.parent / candidate)
+            img_path = img_path.resolve()
+            try:
+                data = _read_file_bytes(img_path)
+                b64 = base64.b64encode(data).decode("ascii")
+                mime = _ext_to_mime(img_path)
+                self.ok.append(str(img_path))
+                return f"data:{mime};base64,{b64}"
+            except Exception:
+                self.bad.append(str(img_path))
+                return None
 
-    for img in soup.find_all("img"):
-        src = (img.get("src") or "").strip()
-        if not _is_local_image(src):
-            # dejar URLs http/https/data intactas
-            continue
-        # Resolver ruta local relativa al HTML
-        src_clean = src.replace("file://", "")
-        # eliminar querystring o fragmento si hubiera
-        if "?" in src_clean:
-            src_clean = src_clean.split("?", 1)[0]
-        if "#" in src_clean:
-            src_clean = src_clean.split("#", 1)[0]
+        def _attrs_to_str(self, attrs: List[Tuple[str, str | None]]) -> str:
+            parts: List[str] = []
+            for k, v in attrs:
+                if v is None:
+                    parts.append(k)
+                else:
+                    parts.append(f'{k}="{escape(v, quote=True)}"')
+            return (" "+" ".join(parts)) if parts else ""
 
-        # Rutas absolutas vs relativas
-        candidate = Path(src_clean)
-        if candidate.is_absolute():
-            img_path = candidate
-        else:
-            img_path = (html_path.parent / candidate)
-        img_path = img_path.resolve()
-        try:
-            data = _read_file_bytes(img_path)
-            b64 = base64.b64encode(data).decode("ascii")
-            mime = _ext_to_mime(img_path)
-            img["src"] = f"data:{mime};base64,{b64}"
-            ok.append(str(img_path))
-        except Exception:
-            bad.append(str(img_path))
+        def handle_decl(self, decl: str) -> None:
+            self.out.append(f"<!{decl}>")
+
+        def handle_startendtag(self, tag: str, attrs: List[Tuple[str, str | None]]):
+            if tag.lower() == "img":
+                new_attrs = []
+                replaced = False
+                for k, v in attrs:
+                    if k.lower() == "src" and v is not None:
+                        datauri = self._resolve_and_inline(v.strip())
+                        if datauri:
+                            new_attrs.append((k, datauri))
+                            replaced = True
+                            continue
+                    new_attrs.append((k, v))
+                self.out.append(f"<{tag}{self._attrs_to_str(new_attrs)}/>")
+            else:
+                self.out.append(f"<{tag}{self._attrs_to_str(attrs)}/>")
+
+        def handle_starttag(self, tag: str, attrs: List[Tuple[str, str | None]]):
+            if tag.lower() == "img":
+                new_attrs = []
+                for k, v in attrs:
+                    if k.lower() == "src" and v is not None:
+                        datauri = self._resolve_and_inline(v.strip())
+                        if datauri:
+                            new_attrs.append((k, datauri))
+                            continue
+                    new_attrs.append((k, v))
+                self.out.append(f"<{tag}{self._attrs_to_str(new_attrs)}>")
+            else:
+                self.out.append(f"<{tag}{self._attrs_to_str(attrs)}>")
+
+        def handle_endtag(self, tag: str):
+            self.out.append(f"</{tag}>")
+
+        def handle_data(self, data: str):
+            self.out.append(data)
+
+        def handle_comment(self, data: str):
+            self.out.append(f"<!--{data}-->")
+
+        def handle_entityref(self, name: str):
+            self.out.append(f"&{name};")
+
+        def handle_charref(self, name: str):
+            self.out.append(f"&#{name};")
+
+    parser = ImgInliner(html_path)
+    parser.feed(html_text)
 
     # Salida
     out_path = html_path.with_suffix("")
     out_path = out_path.with_name(out_path.name + output_suffix)
-    out_path.write_text(str(soup), encoding="utf-8")
+    out_path.write_text("".join(parser.out), encoding="utf-8")
 
-    return out_path, ok, bad
+    return out_path, parser.ok, parser.bad
 
 
 def find_html_files(inputs: Iterable[Path]) -> List[Path]:
