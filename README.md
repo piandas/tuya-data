@@ -10,10 +10,13 @@ Repositorio con las soluciones a los 4 numerales de la prueba técnica. Este REA
 </picture>
 
 ## Resumen ejecutivo
-- Ejercicio 1 (Dataset de teléfonos): se definió un modelo y proceso simple para tener un único teléfono activo por cliente y tipo, con validación E.164, frescura y consentimiento. Logro: dataset claro y trazable listo para consumo, cumpliendo el objetivo de calidad y autogestión.
-- Ejercicio 2 (KPIs y trazabilidad): se planteó un dashboard con semáforos y tendencias para calidad, duplicados, actualización, consentimiento y contactabilidad, con alertas por umbrales y registro por corrida. Logro: mecanismo práctico de veeduría que bloquea publicaciones si no hay calidad mínima.
-- Ejercicio 3 (Rachas): se construyó un pipeline reproducible (XLSX→CSV→SQLite→SQL) que entrega rachas por nivel y cliente parametrizadas por fecha_base y n. Logro: resultados consistentes y testeables que cumplen todas las reglas pedidas.
-- Ejercicio 4 (HTML→Base64): se desarrolló un script con librería estándar que inlinea imágenes locales y genera copias .inlined.html, devolviendo un resumen de éxitos/fallos. Logro: solución simple, portable y orientada a objetos.
+
+| Ejercicio | Entrada | Salida | Logro |
+|---|---|---|---|
+| 1. Dataset de teléfonos | Diseño + contrato `ex1_ex2_telefonos_kpis/data_contract.yaml` | Modelo y reglas listas para publicar (gold) | Dataset único, trazable y con calidad (E.164, frescura, opt-in) |
+| 2. KPIs y trazabilidad | Dataset teléfonos (silver) + `run_id` | Dashboard con KPIs y alertas; auditoría por corrida | Veeduría simple con gates que bloquean si no hay mínimos |
+| 3. Rachas (SQL + SQLite) | `ex3_rachas/data/raw/rachas.xlsx` | `ex3_rachas/resultados.csv` y `ex3_rachas/db/rachas.db` | Rachas por cliente según niveles N0..N4, fecha_base y n |
+| 4. HTML→Base64 (stdlib) | HTML(s) o carpeta (ej. `ex4_html2base64/examples/`) | `*.inlined.html` + resumen `{ success, fail }` | Inline de imágenes locales sin tocar el original, 100% stdlib |
 
 ## 🗂️ Estructura
 
@@ -50,7 +53,7 @@ Ruta: `ex1_ex2_telefonos_kpis/README.md` y `ex1_ex2_telefonos_kpis/data_contract
 ---
 
 ## 2) KPIs y Trazabilidad (conceptual)
-Ruta: `ex1_ex2_telefonos_kpis/READ.md` (sección “Ejercicio 2”).
+Ruta: `ex1_ex2_telefonos_kpis/README.md` (sección “Ejercicio 2”).
 
 - Vista negocio: calidad (E.164), duplicados, actualización (días), consentimiento, novedades y contactabilidad.
 - Dashboard: portada con semáforos y tendencias, calidad por fuente/tipo con “ver muestras”, contactabilidad por segmento, novedades y exportar “teléfonos activos”.
@@ -63,17 +66,22 @@ Ruta: `ex1_ex2_telefonos_kpis/READ.md` (sección “Ejercicio 2”).
 Ruta: `ex3_rachas/` (README con detalle y scripts).
 
 - Flujo: XLSX → CSV → SQLite → SQL → resultados.csv
-- Resultado: `identificacion, racha, fecha_fin, nivel`
 
-Ejecución rápida:
-```
-cd ex3_rachas
-python main.py
-```
+Entradas y salidas:
+- Entrada principal: `ex3_rachas/data/raw/rachas.xlsx` (hojas: historia, retiros).
+- Intermedios: `ex3_rachas/data/historia.csv`, `ex3_rachas/data/retiros.csv`, base `ex3_rachas/db/rachas.db`.
+- Salida final: `ex3_rachas/resultados.csv` con columnas `identificacion, racha, fecha_fin, nivel`.
 
-Ejecución con parámetros:
-```
-python ex3_rachas\scripts\run_solution.py --fecha_base 2024-12-31 --n 3 --output resultados.csv
+Reglas aplicadas:
+- Clasificación N0..N4 por rangos de saldo.
+- Cliente ausente en un mes: N0, excepto si el corte es posterior a su retiro.
+- Rachas: meses consecutivos en el mismo nivel; filtra rachas ≥ n; si hay varias, toma la más larga y, a igualdad, la más reciente (≤ fecha_base).
+
+Ejemplo de salida (CSV):
+```csv
+identificacion,racha,fecha_fin,nivel
+DWJ0GFUKS12L7Y0G9,6,2023-11-30,N2
+IGOQX9XYBSRDMOZXT,6,2023-12-31,N4
 ```
 
 ---
@@ -81,12 +89,25 @@ python ex3_rachas\scripts\run_solution.py --fecha_base 2024-12-31 --n 3 --output
 ## 4) HTML → Base64 (stdlib)
 Ruta: `ex4_html2base64/` (README con ejemplo y CLI).
 
-Ejemplo incluido:
+Entradas y salidas:
+- Entrada: uno o más HTML o directorios (p. ej., `ex4_html2base64/examples/index.html`).
+- Salidas: archivo `.inlined.html` junto al original y resumen por ejecución `{ success: {}, fail: {} }`.
+
+Alcance y limitaciones:
+- Solo convierte imágenes locales referenciadas en `<img src>` a data URI Base64; no toca `http/https` ni `data:` ya inline.
+- No modifica el original; crea un nuevo archivo con sufijo `.inlined.html`.
+
+Ejemplo de salida (JSON):
+```json
+{
+	"success": {
+		"C:\\...\\ex4_html2base64\\examples\\index.html": [
+			"C:\\...\\ex4_html2base64\\examples\\images\\tuya.svg"
+		]
+	},
+	"fail": {}
+}
 ```
-python ex4_html2base64\scripts\run_html2base64.py ex4_html2base64\examples --json
-```
-- Genera `.inlined.html` sin modificar el original.
-- Retorna resumen `{ success: {}, fail: {} }` por HTML.
 
 ---
 
