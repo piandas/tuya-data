@@ -57,4 +57,3 @@ ex4_html2base64/
 
 Notas:
 - El archivo generado por el proceso del ejemplo es `examples/index.inlined.html` (no se versiona por defecto).
-- Las dependencias se instalan desde el `requirements.txt` en la raíz del repositorio.
