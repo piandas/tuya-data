@@ -10,10 +10,10 @@ from pathlib import Path
 
 def main():
     parser = argparse.ArgumentParser(description="Ejecuta consulta de rachas")
-    parser.add_argument("--fecha_base", required=True, 
-                       help="Fecha base en formato YYYY-MM-DD")
-    parser.add_argument("--n", type=int, required=True,
-                       help="Mínimo de meses consecutivos para filtrar rachas")
+    parser.add_argument("--fecha_base", default="2023-04-30", 
+                       help="Fecha base en formato YYYY-MM-DD (default: 2023-04-30)")
+    parser.add_argument("--n", type=int, default=3,
+                       help="Mínimo de meses consecutivos para filtrar rachas (default: 3)")
     parser.add_argument("--output", default=None,
                        help="Archivo CSV de salida (por defecto: stdout)")
     
