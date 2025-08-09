@@ -1,0 +1,44 @@
+name: Tests Ejercicio 3 - Análisis de Rachas
+
+on:
+  push:
+    paths:
+      - 'ex3_rachas/**'
+  pull_request:
+    paths:
+      - 'ex3_rachas/**'
+
+jobs:
+  test-rachas:
+    name: Probar análisis de rachas
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Instalar dependencias
+      run: |
+        cd ex3_rachas
+        pip install pandas openpyxl pytest
+    
+    - name: Preparar datos
+      run: |
+        cd ex3_rachas
+        python scripts/xlsx_to_csv.py
+        python scripts/loads_csv_to_table.py
+    
+    - name: Ejecutar pruebas
+      run: |
+        cd ex3_rachas/tests
+        pytest
+    
+    - name: Verificar solución principal
+      run: |
+        cd ex3_rachas
+        python scripts/run_solution.py
+        [ -f resultados.csv ] || exit 1
+        echo "Resultados generados: $(wc -l < resultados.csv) líneas"
