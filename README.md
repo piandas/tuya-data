@@ -2,15 +2,14 @@
 
 Repositorio con las soluciones a los 4 numerales de la prueba técnica. Este README resume el qué, cómo y dónde; los detalles están en cada carpeta.
 
-## � Diagrama general
-Vista de alto nivel del flujo y componentes. Se muestra en SVG (nítido y escalable) con PNG como fallback.
+## Diagrama general
 
 <picture>
-	<source srcset="Documents/diagrama-final.svg" type="image/svg+xml">
-	<img alt="Diagrama general de la solución" src="Documents/diagrama-final.png" />
+	<source srcset="Documents/diagrama-final.png" type="image/png">
+	<img alt="Diagrama general de la solución" src="Documents/diagrama-final.svg" />
 </picture>
 
-## �🧭 Resumen ejecutivo
+## Resumen ejecutivo
 - Ejercicio 1 (Dataset de teléfonos): se definió un modelo y proceso simple para tener un único teléfono activo por cliente y tipo, con validación E.164, frescura y consentimiento. Logro: dataset claro y trazable listo para consumo, cumpliendo el objetivo de calidad y autogestión.
 - Ejercicio 2 (KPIs y trazabilidad): se planteó un dashboard con semáforos y tendencias para calidad, duplicados, actualización, consentimiento y contactabilidad, con alertas por umbrales y registro por corrida. Logro: mecanismo práctico de veeduría que bloquea publicaciones si no hay calidad mínima.
 - Ejercicio 3 (Rachas): se construyó un pipeline reproducible (XLSX→CSV→SQLite→SQL) que entrega rachas por nivel y cliente parametrizadas por fecha_base y n. Logro: resultados consistentes y testeables que cumplen todas las reglas pedidas.
@@ -27,7 +26,7 @@ Vista de alto nivel del flujo y componentes. Se muestra en SVG (nítido y escala
 └─ README.md                   # Este documento
 ```
 
-## ⚙️ Setup rápido (Windows, cmd.exe)
+## ⚙️ Setup rápido
 - Python 3.11+ recomendado
 - Instalar dependencias (para ex3 y tests):
 ```
@@ -96,5 +95,5 @@ python ex4_html2base64\scripts\run_html2base64.py ex4_html2base64\examples --jso
 - Gates: si fallan mínimos, no se promueve de silver_ a gold_ y se notifica.
 - Auditoría/lineage: registro por corrida (`run_id`) de reglas, KPIs y transformaciones.
 
-## 📎 Notas
+## Notas
 - ex4 usa solo librería estándar; ex3 usa pandas/openpyxl para preparación y pytest para pruebas.
