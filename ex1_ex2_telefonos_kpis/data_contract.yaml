@@ -1,0 +1,31 @@
+version: v1
+dataset: telefonos
+description: Contrato mínimo de datos para dataset de teléfonos de clientes
+
+inputs:
+  columns:
+    - { name: cliente_id, type: string, required: true }
+    - { name: telefono,   type: string, required: true }
+    - { name: tipo,       type: enum,   allowed: ["movil", "fijo", "trabajo", "casa"], required: true }
+    - { name: updated_at, type: timestamp, format: iso8601, required: true }
+    - { name: opt_in,     type: boolean, required: true }
+
+outputs:
+  columns:
+    - { name: cliente_id,   type: string }
+    - { name: telefono_e164, type: string, regex: '^\+[1-9]\d{7,14}$' }
+    - { name: tipo,          type: enum,   allowed: ["movil", "fijo", "trabajo", "casa"] }
+    - { name: opt_in,        type: boolean }
+    - { name: updated_at,    type: timestamp, format: iso8601 }
+
+rules:
+  - { name: e164_regex, field: telefono_e164, type: regex, pattern: '^\+[1-9]\d{7,14}$' }
+  - { name: unicidad_cliente_tipo, fields: [cliente_id, tipo], type: unique_active }
+  - { name: frescura_max_365d, field: updated_at, type: freshness_days, max_days: 365 }
+
+quality_thresholds:
+  e164_valid_rate: { min: 0.95 }
+  duplicates_rate: { max: 0.01 }
+
+ci_enforcement:
+  block_on_fail: [ e164_valid_rate, duplicates_rate ]
