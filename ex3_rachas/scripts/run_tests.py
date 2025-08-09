@@ -8,6 +8,9 @@ def setup_test_db():
     db_path = Path(__file__).parent.parent / "db" / "rachas_test.db"
     schema_path = Path(__file__).parent.parent / "sql" / "schema.sql"
     
+    # Crear directorio db si no existe
+    db_path.parent.mkdir(exist_ok=True)
+    
     if db_path.exists():
         db_path.unlink()
     

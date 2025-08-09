@@ -30,6 +30,9 @@ def create_indexes(cursor):
         cursor.execute(index_sql)
 
 def main():
+    # Crear directorio db si no existe
+    DB_PATH.parent.mkdir(exist_ok=True)
+    
     conn = sqlite3.connect(DB_PATH)
     with open(SQL_SCHEMA, "r", encoding="utf-8") as schema_file:
         conn.executescript(schema_file.read())
