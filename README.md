@@ -1,4 +1,4 @@
-# Santiago Bustos Pianda - Tuya SAS — Prueba de Ingeniería de Datos
+# Santiago Bustos Pianda - Tuya SA — Prueba de Ingeniería de Datos
 
 Repositorio con las soluciones a los 4 numerales de la prueba técnica. Este README resume el qué, cómo y dónde; los detalles están en cada carpeta.
 
