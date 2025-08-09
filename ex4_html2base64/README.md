@@ -6,7 +6,6 @@
 - No sustituir el archivo original; generar uno nuevo con sufijo `.inlined.html`.
 - Retornar un objeto con imágenes procesadas y fallidas por HTML.
 
-## Uso rápido (CLI)
 ## Ejemplo incluido (paso a paso)
 - Carpeta de ejemplo: `ex4_html2base64\examples`
 1) Ejecuta:
@@ -56,4 +55,4 @@ ex4_html2base64/
 ```
 
 Notas:
-- El archivo generado por el proceso del ejemplo es `examples/index.inlined.html` (no se versiona por defecto).
+- El archivo generado por el proceso del ejemplo es `examples/index.inlined.html`.
