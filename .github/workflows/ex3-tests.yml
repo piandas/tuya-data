@@ -39,6 +39,6 @@ jobs:
     - name: Verificar solución principal
       run: |
         cd ex3_rachas
-        python scripts/run_solution.py
+        python scripts/run_solution.py --fecha_base 2023-04-30 --n 3
         [ -f resultados.csv ] || exit 1
         echo "Resultados generados: $(wc -l < resultados.csv) líneas"
