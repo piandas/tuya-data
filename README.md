@@ -1,6 +1,5 @@
 # Santiago Bustos Pianda - Tuya SA — Prueba de Ingeniería de Datos
 
-Repositorio con las soluciones a los 4 numerales de la prueba técnica. Este README resume el qué, cómo y dónde; los detalles están en cada carpeta.
 
 ## Diagrama general
 
@@ -18,7 +17,7 @@ Repositorio con las soluciones a los 4 numerales de la prueba técnica. Este REA
 | 3. Rachas (SQL + SQLite) | `ex3_rachas/data/raw/rachas.xlsx` | `ex3_rachas/resultados.csv` y `ex3_rachas/db/rachas.db` | Rachas por cliente según niveles N0..N4, fecha_base y n |
 | 4. HTML→Base64 (stdlib) | HTML(s) o carpeta (ej. `ex4_html2base64/examples/`) | `*.inlined.html` + resumen `{ success, fail }` | Inline de imágenes locales sin tocar el original, 100% stdlib |
 
-## 🗂️ Estructura
+## Estructura
 
 ```
 .
@@ -29,7 +28,7 @@ Repositorio con las soluciones a los 4 numerales de la prueba técnica. Este REA
 └─ README.md                   # Este documento
 ```
 
-## ⚙️ Setup rápido
+## Setup rápido
 - Python 3.11+ recomendado
 - Instalar dependencias (para ex3 y tests):
 ```
@@ -111,7 +110,7 @@ Ejemplo de salida (JSON):
 
 ---
 
-## 🔍 Calidad CI/CD y notas adicionales
+## Calidad CI/CD y notas adicionales
 - Data Contract (`ex1_ex2_telefonos_kpis/data_contract.yaml`): columnas y reglas básicas; umbrales mínimos (E.164 ≥ 95%, duplicados ≤ 1%).
 - Gates: si fallan mínimos, no se promueve de silver_ a gold_ y se notifica.
 - Auditoría/lineage: registro por corrida (`run_id`) de reglas, KPIs y transformaciones.
